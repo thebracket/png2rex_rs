@@ -9,6 +9,8 @@ pub enum CommandLineError {
 pub struct Png2RexArgs {
     pub input: String,
     pub output: String,
+    pub flip_v: bool,
+    pub flip_h: bool,
 }
 
 fn file_exists(filename: &str) -> bool {
@@ -16,16 +18,43 @@ fn file_exists(filename: &str) -> bool {
 }
 
 pub fn parse_args(args: &[String]) -> Result<Png2RexArgs, CommandLineError> {
-    if args.len() != 3 {
+    // Transform arguments list by exclusing the first one (the executable path/name)
+    // and adding a bool to each entry. If set to "true" that argument has been handled
+    // and will be removed.
+    let mut args_extended: Vec<(&String, bool)> = args.iter().skip(1).map(|a| (a, false)).collect();
+
+    let mut flip_v = false;
+    let mut flip_h = false;
+    let len = args_extended.len();
+    for i in 0..len {
+        if args_extended[i].0 == "--flipv" {
+            args_extended[i].1 = true;
+            flip_v = true;
+        } else if args_extended[i].0 == "--fliph" {
+            args_extended[i].1 = true;
+            flip_h = true;
+        }
+    }
+
+    // Remove processed entries
+    let args_cleaned: Vec<&String> = args_extended
+        .iter()
+        .filter(|(_, b)| !b)
+        .map(|(s, _)| *s)
+        .collect();
+
+    if args_cleaned.len() != 2 {
         return Err(CommandLineError::NumberOfParameters);
     }
-    if !file_exists(&args[0]) {
-        return Err(CommandLineError::FileNotFound(args[1].clone()));
+    if !file_exists(args_cleaned[0]) {
+        return Err(CommandLineError::FileNotFound(args_cleaned[0].clone()));
     }
 
     Ok(Png2RexArgs {
-        input: args[1].clone(),
-        output: args[2].clone(),
+        input: args_cleaned[0].clone(),
+        output: args_cleaned[1].clone(),
+        flip_v,
+        flip_h,
     })
 }
 
@@ -49,7 +78,7 @@ mod test {
 
     #[test]
     fn file_not_found() {
-        let r = parse_args(&["flibble".to_string(), "flibble".to_string()]);
+        let r = parse_args(&[String::new(), "flibble".to_string(), "flibble".to_string()]);
         assert!(r.is_err());
         if let Err(e) = r {
             assert_eq!(e, CommandLineError::FileNotFound("flibble".to_string()));
@@ -58,12 +87,21 @@ mod test {
 
     #[test]
     fn valid() {
-        assert!(parse_args(&["resources/kitty.png".to_string(), "kitty.rex".to_string()]).is_ok());
+        assert!(parse_args(&[
+            String::new(),
+            "resources/kitty.png".to_string(),
+            "kitty.rex".to_string()
+        ])
+        .is_ok());
     }
 
     #[test]
     fn really_valid() {
-        if let Ok(p) = parse_args(&["resources/kitty.png".to_string(), "kitty.xp".to_string()]) {
+        if let Ok(p) = parse_args(&[
+            String::new(),
+            "resources/kitty.png".to_string(),
+            "kitty.xp".to_string(),
+        ]) {
             assert_eq!(p.input, "resources/kitty.png");
             assert_eq!(p.output, "kitty.xp");
         }

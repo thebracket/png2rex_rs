@@ -13,6 +13,13 @@ This is a Rust port of [png2rex](https://github.com/thebracket/png2rex).
 
 With the `exe` file, it's as simple as: `png2rex (input png) (output xp)`. For example, `png2rex resources/kitty.png kitty.xp`. If you want to run it with Cargo, you can use `cargo run -- resources/kitty.png kitty.xp`.
 
+### Optional extras
+
+You can provide additional CLI arguments to perform some image operations en route:
+
+* `--flipv` flips the image vertically.
+* `--fliph` flips the image horizontally.
+
 ## Results
 
 **Original Kitty PNG**:

@@ -1,16 +1,22 @@
-use std::error::Error;
+use crate::args::Png2RexArgs;
 use bracket_lib::prelude::XpColor;
 use image::io::Reader as ImageReader;
-use crate::args::Png2RexArgs;
+use std::error::Error;
 
 pub struct PixelBuffer {
     pub width: u32,
     pub height: u32,
-    pub pixels: Vec<XpColor>
+    pub pixels: Vec<XpColor>,
 }
 
 pub fn read_png(args: &Png2RexArgs) -> Result<PixelBuffer, Box<dyn Error>> {
-    let img = ImageReader::open(&args.input)?.decode()?;
+    let mut img = ImageReader::open(&args.input)?.decode()?;
+    if args.flip_v {
+        img = img.flipv();
+    }
+    if args.flip_h {
+        img = img.fliph();
+    }
     let rgb = img.to_rgb8();
     let width = rgb.width();
     let height = rgb.height();
@@ -19,19 +25,13 @@ pub fn read_png(args: &Png2RexArgs) -> Result<PixelBuffer, Box<dyn Error>> {
     let len = raw.len() / 3;
     for i in 0..len {
         let j = i * 3;
-        pixels.push(
-            XpColor::new(
-                raw[j],
-                raw[j+1],
-                raw[j+2],
-            )
-        );
+        pixels.push(XpColor::new(raw[j], raw[j + 1], raw[j + 2]));
     }
 
-    Ok(PixelBuffer{
+    Ok(PixelBuffer {
         width,
         height,
-        pixels
+        pixels,
     })
 }
 
@@ -43,7 +43,13 @@ mod test {
 
     #[test]
     fn test_kitty() {
-        let buf = read_png(&Png2RexArgs{input: "resources/kitty.png".to_string(), output: String::new()}).unwrap();
+        let buf = read_png(&Png2RexArgs {
+            input: "resources/kitty.png".to_string(),
+            output: String::new(),
+            flip_v: false,
+            flip_h: false,
+        })
+        .unwrap();
         assert_eq!(buf.width, 32);
         assert_eq!(buf.height, 32);
     }

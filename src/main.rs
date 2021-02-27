@@ -23,14 +23,23 @@ fn main() {
     match params {
         Ok(params) => {
             if let Ok(buf) = read_png(&params) {
-                println!("{}. Image is {} x {}.", "Loaded input PNG".green(), buf.width, buf.height);
+                println!(
+                    "{}. Image is {} x {}.",
+                    "Loaded input PNG".green(),
+                    buf.width,
+                    buf.height
+                );
                 if let Err(e) = make_rex(&params, &buf) {
                     println!("{:?}", e);
                 } else {
                     println!("{}", "Image converted.".green());
                 }
             } else {
-                println!("{} : {}", "Unable to read PNG file".red(), params.input.yellow());
+                println!(
+                    "{} : {}",
+                    "Unable to read PNG file".red(),
+                    params.input.yellow()
+                );
             }
         }
         Err(e) => print_cli_error(e),
