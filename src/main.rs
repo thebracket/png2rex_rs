@@ -18,7 +18,6 @@ use rex_writer::make_rex;
 fn main() {
     println!("{}", "png2rex 1.0".yellow());
     let args: Vec<String> = env::args().collect();
-    println!("{:#?}", args);
     let params = parse_args(&args);
     match params {
         Ok(params) => {

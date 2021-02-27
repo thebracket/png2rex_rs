@@ -21,6 +21,18 @@ You can provide additional CLI arguments to perform some image operations en rou
 * `--fliph` flips the image horizontally.
 * `--resize 64 32` will resize the image to be 64 pixels wide, 32 pixels tall.
 
+These options can be combined and can be in any order. For example:
+
+```
+cargo run -- --fliph .\resources\kitty.png --flipv C:\Users\herbe\Downloads\REXPaint-v1.04\images\kitty.xp --resize 64 64
+```
+
+Has the same effect as:
+
+```
+cargo run -- .\resources\kitty.png C:\Users\herbe\Downloads\REXPaint-v1.04\images\kitty.xp --resize 64 64 --fliph --flipv 
+```
+
 ## Results
 
 **Original Kitty PNG**:
