@@ -11,6 +11,7 @@ pub struct Png2RexArgs {
     pub output: String,
     pub flip_v: bool,
     pub flip_h: bool,
+    pub resize: Option<(u32, u32)>,
 }
 
 fn file_exists(filename: &str) -> bool {
@@ -25,6 +26,8 @@ pub fn parse_args(args: &[String]) -> Result<Png2RexArgs, CommandLineError> {
 
     let mut flip_v = false;
     let mut flip_h = false;
+    let mut resize = None;
+
     let len = args_extended.len();
     for i in 0..len {
         if args_extended[i].0 == "--flipv" {
@@ -33,6 +36,19 @@ pub fn parse_args(args: &[String]) -> Result<Png2RexArgs, CommandLineError> {
         } else if args_extended[i].0 == "--fliph" {
             args_extended[i].1 = true;
             flip_h = true;
+        } else if args_extended[i].0 == "--resize" {
+            if i + 2 >= len {
+                return Err(CommandLineError::NumberOfParameters);
+            }
+            args_extended[i].1 = true;
+            args_extended[i + 1].1 = true;
+            args_extended[i + 2].1 = true;
+            let w = args_extended[i + 1].0.parse::<u32>();
+            let h = args_extended[i + 2].0.parse::<u32>();
+            if w.is_err() || h.is_err() {
+                return Err(CommandLineError::NumberOfParameters);
+            }
+            resize = Some((w.unwrap(), h.unwrap()));
         }
     }
 
@@ -55,6 +71,7 @@ pub fn parse_args(args: &[String]) -> Result<Png2RexArgs, CommandLineError> {
         output: args_cleaned[1].clone(),
         flip_v,
         flip_h,
+        resize,
     })
 }
 

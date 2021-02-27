@@ -19,6 +19,7 @@ You can provide additional CLI arguments to perform some image operations en rou
 
 * `--flipv` flips the image vertically.
 * `--fliph` flips the image horizontally.
+* `--resize 64 32` will resize the image to be 64 pixels wide, 32 pixels tall.
 
 ## Results
 

@@ -1,6 +1,6 @@
 use crate::args::Png2RexArgs;
 use bracket_lib::prelude::XpColor;
-use image::io::Reader as ImageReader;
+use image::{imageops::FilterType, io::Reader as ImageReader, GenericImageView};
 use std::error::Error;
 
 pub struct PixelBuffer {
@@ -17,9 +17,12 @@ pub fn read_png(args: &Png2RexArgs) -> Result<PixelBuffer, Box<dyn Error>> {
     if args.flip_h {
         img = img.fliph();
     }
+    if let Some((w, h)) = args.resize {
+        img = img.resize_exact(w, h, FilterType::CatmullRom);
+    }
     let rgb = img.to_rgb8();
-    let width = rgb.width();
-    let height = rgb.height();
+    let width = img.width();
+    let height = img.height();
     let raw = rgb.into_raw();
     let mut pixels = Vec::with_capacity(width as usize * height as usize);
     let len = raw.len() / 3;
@@ -48,6 +51,7 @@ mod test {
             output: String::new(),
             flip_v: false,
             flip_h: false,
+            resize: None,
         })
         .unwrap();
         assert_eq!(buf.width, 32);
